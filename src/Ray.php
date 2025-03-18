@@ -8,9 +8,6 @@ class Ray {
 		set_exception_handler( [ $this, 'setExceptionHandler'] ); // exception
 		set_error_handler( [ $this, 'setErrorHandler'] ); // error
 		register_shutdown_function( [ $this, 'registerShutdownFunction'] ); // fatal error
-
-		// For these scenarios I always just want to see Ray
-		ray()->showApp();
 	}
 
 	/**
