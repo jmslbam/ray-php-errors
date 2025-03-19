@@ -4,7 +4,13 @@ namespace JMSLBAM\RayPHPErrors;
 
 class Ray {
 
-	public function init() {
+	/** @var bool */
+	private $debug;
+
+	public function init( $debug = false ) {
+
+		$this->debug = $debug;
+
 		set_exception_handler( [ $this, 'setExceptionHandler'] ); // exception
 		set_error_handler( [ $this, 'setErrorHandler'] ); // error
 		register_shutdown_function( [ $this, 'registerShutdownFunction'] ); // fatal error
@@ -20,6 +26,10 @@ class Ray {
 		$payload = new ErrorPayload($message, $file . ':' . $lineNumber );
 
 		$this->sendRequest( $message, $file, $lineNumber );
+
+		if( $this->debug ) {
+			dump( $message, $file . ':' . $lineNumber );
+		}
 
 		return false;
 	}
@@ -39,7 +49,9 @@ class Ray {
 
 		$this->sendRequest( $error['message'], $error['file'], $error['line'] );
 
-		return false;
+		if( $this->debug ) {
+			dump( $error );
+		}
 	}
 
 	/**
@@ -50,8 +62,10 @@ class Ray {
 	public function setExceptionHandler( $exception ) {
 
 		$this->sendRequest( $exception->getMessage(), $exception->getFile(), $exception->getLine() );
-		
-		return false;
+
+		if( $this->debug ) {
+			dump( $exception );
+		}
 	}
 
 	private function sendRequest( $message, $file, $lineNumber, $color = 'red' ) {
