@@ -59,5 +59,10 @@ class Ray {
 		$payload = new ErrorPayload($message, $file . ':' . $lineNumber );
 		
 		ray()->sendRequest( $payload )->color( $color );
+
+		// Sprinkle a little WordPress Query Monitor here so that still shows the errors
+		if( function_exists('do_action') ) {
+			do_action( 'qm/error', $message );
+		}
 	}
 }
