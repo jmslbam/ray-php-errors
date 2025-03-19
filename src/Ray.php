@@ -30,7 +30,7 @@ class Ray
         $this->sendRequest($message, $file, $lineNumber);
 
         if ($this->debug) {
-            dump($message, $file.':'.$lineNumber);
+            dump($message . PHP_EOL . $file.':'.$lineNumber);
         }
 
         return false;
