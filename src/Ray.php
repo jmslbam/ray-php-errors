@@ -2,81 +2,86 @@
 
 namespace JMSLBAM\RayPHPErrors;
 
-class Ray {
+class Ray
+{
+    /** @var bool */
+    private $debug;
 
-	/** @var bool */
-	private $debug;
+    public function init($debug = false)
+    {
 
-	public function init( $debug = false ) {
+        $this->debug = $debug;
 
-		$this->debug = $debug;
+        set_exception_handler([$this, 'setExceptionHandler']); // exception
+        set_error_handler([$this, 'setErrorHandler']); // error
+        register_shutdown_function([$this, 'registerShutdownFunction']); // fatal error
+    }
 
-		set_exception_handler( [ $this, 'setExceptionHandler'] ); // exception
-		set_error_handler( [ $this, 'setErrorHandler'] ); // error
-		register_shutdown_function( [ $this, 'registerShutdownFunction'] ); // fatal error
-	}
+    /**
+     * Set up error handling
+     *
+     * @return void
+     */
+    public function setErrorHandler($errorNumber, $message, $file, $lineNumber)
+    {
 
-	/**
-	 * Set up error handling
-	 * 
-	 * @return void
-	 */
-	public function setErrorHandler( $errorNumber, $message, $file, $lineNumber ) {
+        $payload = new ErrorPayload($message, $file.':'.$lineNumber);
 
-		$payload = new ErrorPayload($message, $file . ':' . $lineNumber );
+        $this->sendRequest($message, $file, $lineNumber);
 
-		$this->sendRequest( $message, $file, $lineNumber );
+        if ($this->debug) {
+            dump($message, $file.':'.$lineNumber);
+        }
 
-		if( $this->debug ) {
-			dump( $message, $file . ':' . $lineNumber );
-		}
+        return false;
+    }
 
-		return false;
-	}
+    /**
+     * Catch fatal errors
+     *
+     * @return void
+     */
+    public function registerShutdownFunction()
+    {
 
-	/**
-	 * Catch fatal errors
-	 *
-	 * @return void
-	 */
-	public function registerShutdownFunction() {
-		
-		$error = error_get_last();
+        $error = error_get_last();
 
-		if( is_null( $error ) ) {
-			return;
-		}
+        if (is_null($error)) {
+            return;
+        }
 
-		$this->sendRequest( $error['message'], $error['file'], $error['line'] );
+        $this->sendRequest($error['message'], $error['file'], $error['line']);
 
-		if( $this->debug ) {
-			dump( $error );
-		}
-	}
+        if ($this->debug) {
+            dump($error);
+        }
+    }
 
-	/**
-	 * Catch exceptions
-	 *
-	 * @return void
-	 */
-	public function setExceptionHandler( $exception ) {
+    /**
+     * Catch exceptions
+     *
+     * @return void
+     */
+    public function setExceptionHandler($exception)
+    {
 
-		$this->sendRequest( $exception->getMessage(), $exception->getFile(), $exception->getLine() );
+        $this->sendRequest($exception->getMessage(), $exception->getFile(), $exception->getLine());
 
-		if( $this->debug ) {
-			dump( $exception );
-		}
-	}
+        if ($this->debug) {
+            dump($exception);
+        }
+    }
 
-	private function sendRequest( $message, $file, $lineNumber, $color = 'red' ) {
+    private function sendRequest($message, $file, $lineNumber, $color = 'red')
+    {
 
-		$payload = new ErrorPayload($message, $file . ':' . $lineNumber );
-		
-		ray()->sendRequest( $payload )->color( $color );
+        $payload = new ErrorPayload($message, $file.':'.$lineNumber);
 
-		// Sprinkle a little WordPress Query Monitor here so that still shows the errors
-		if( function_exists('do_action') ) {
-			do_action( 'qm/error', $message );
-		}
-	}
+        ray()->sendRequest($payload)->color($color);
+
+        // Sprinkle a little WordPress Query Monitor here so that still shows the errors
+        if (function_exists('do_action')) {
+            do_action('qm/error', $message);
+        }
+    }
 }

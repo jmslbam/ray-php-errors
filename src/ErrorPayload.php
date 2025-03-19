@@ -3,8 +3,8 @@
 namespace JMSLBAM\RayPHPErrors;
 
 // use Spatie\Ray\Origin\DefaultOriginFactory;
-use Spatie\Ray\Payloads\Payload;
 use Spatie\Ray\Origin\Origin;
+use Spatie\Ray\Payloads\Payload;
 
 class ErrorPayload extends Payload
 {
@@ -27,7 +27,7 @@ class ErrorPayload extends Payload
         $this->label = 'error';
 
         // Sorry ;) mis-using the $label to overwrite the file and fileNumber
-        $fileAndLineNumber = explode( ':', $label );
+        $fileAndLineNumber = explode(':', $label);
 
         $this->file = $fileAndLineNumber[0];
         $this->lineNumber = $fileAndLineNumber[1];
@@ -38,7 +38,7 @@ class ErrorPayload extends Payload
         return 'custom';
     }
 
-	public function getContent(): array
+    public function getContent(): array
     {
         return [
             'content' => $this->content,
@@ -55,10 +55,10 @@ class ErrorPayload extends Payload
         ];
     }
 
-	protected function getOrigin(): Origin
+    protected function getOrigin(): Origin
     {
         /** @var \Spatie\Ray\Origin\OriginFactory $originFactory */
-        $originFactory = new self::$originFactoryClass();
+        $originFactory = new self::$originFactoryClass;
 
         $origin = $originFactory->getOrigin();
 
