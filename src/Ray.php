@@ -7,7 +7,7 @@ class Ray {
 	public function init() {
 		set_exception_handler( [ $this, 'setExceptionHandler'] ); // exception
 		set_error_handler( [ $this, 'setErrorHandler'] ); // error
-		register_shutdown_function( [ $this, 'registerShutdownFunction'] ); // fatal error
+		// register_shutdown_function( [ $this, 'registerShutdownFunction'] ); // fatal error
 	}
 
 	/**
@@ -15,10 +15,12 @@ class Ray {
 	 * 
 	 * @return void
 	 */
-	public function setErrorHandler( $number, $message, $filepath, $line ) {
+	public function setErrorHandler( $errorNumber, $message, $file, $lineNumber ) {
 
-		$this->getFormatedErrorMessage($message, $filepath, $line, 'orange');
-		
+		$payload = new ErrorPayload($message, $file . ':' . $lineNumber );
+
+		$this->sendRequest( $message, $file, $lineNumber );
+
 		return false;
 	}
 
@@ -35,7 +37,9 @@ class Ray {
 			return;
 		}
 
-		$this->getFormatedErrorMessage($error['message'], $error['file'], $error['line']);
+		$this->sendRequest( $error['message'], $error['file'], $error['line'] );
+
+		return false;
 	}
 
 	/**
@@ -44,25 +48,16 @@ class Ray {
 	 * @return void
 	 */
 	public function setExceptionHandler( $exception ) {
-		$this->getFormatedErrorMessage($exception->getMessage(), $exception->getFile(), $exception->getLine());
+
+		$this->sendRequest( $exception->getMessage(), $exception->getFile(), $exception->getLine() );
+		
+		return false;
 	}
 
-	private function getFormatedErrorMessage( $message, $filepath, $line, $color = 'red' ) {
-		$format = '%s <br><br> %s <br><br>';
+	private function sendRequest( $message, $file, $lineNumber, $color = 'red' ) {
 
-		ray()->html( sprintf(
-			$format,
-			$message,
-			$this->getFileLink( $filepath, $line )
-		))->color( $color );
-	}
-
-	private function getFileLink( $filepath, $line ) {
-
-		$filename = strtolower( basename( $filepath ) );
-
-		$ahref = '<a href="vscode://file/' . $filepath . ':' . $line. '">' . $filename . ':' . $line . '</a>';
-
-		return '<small style="text-decoration: underline;">' . $ahref . '</small>';
+		$payload = new ErrorPayload($message, $file . ':' . $lineNumber );
+		
+		ray()->sendRequest( $payload )->color( $color );
 	}
 }
