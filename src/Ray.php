@@ -7,7 +7,7 @@ class Ray {
 	public function init() {
 		set_exception_handler( [ $this, 'setExceptionHandler'] ); // exception
 		set_error_handler( [ $this, 'setErrorHandler'] ); // error
-		// register_shutdown_function( [ $this, 'registerShutdownFunction'] ); // fatal error
+		register_shutdown_function( [ $this, 'registerShutdownFunction'] ); // fatal error
 	}
 
 	/**
