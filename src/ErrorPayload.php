@@ -20,14 +20,14 @@ class ErrorPayload extends Payload
     /** @var string */
     protected $lineNumber;
 
-    public function __construct(string $content, string $fileAndLineNumber = '')
+    public function __construct(string $content, string $label = '')
     {
         $this->content = $content;
 
         $this->label = 'error';
 
         // Sorry ;) mis-using the $label to overwrite the file and fileNumber
-        $fileAndLineNumber = explode( ':', $fileAndLineNumber );
+        $fileAndLineNumber = explode( ':', $label );
 
         $this->file = $fileAndLineNumber[0];
         $this->lineNumber = $fileAndLineNumber[1];
