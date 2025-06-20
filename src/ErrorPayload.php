@@ -57,6 +57,7 @@ class ErrorPayload extends Payload
 
     protected function getOrigin(): Origin
     {
+
         /** @var \Spatie\Ray\Origin\OriginFactory $originFactory */
         $originFactory = new self::$originFactoryClass;
 
